@@ -1,0 +1,119 @@
+mainmenu "Xen-on-ARM configuration"
+
+config ARM
+	bool
+	default y
+
+menu "General Setup"
+config OPTIMIZE_FOR_SIZE
+	bool "Optimize for size"
+endmenu
+
+menu "System Type"
+
+choice
+	prompt "Select target platform"
+
+source "arch/arm/tegra/Kconfig"
+
+endchoice
+
+config SMP
+	bool "Support SMP"
+	depends on CPU_CORE_ARM11MP || CPU_CORE_CORTEXA9
+	default y
+
+config NR_CPUS
+	int "Maximum number of CPUs (2-4)"
+	range 2 4
+	depends on SMP
+	default "4"
+
+endmenu
+
+menu "Customize Memory Map"
+config HYPERVISOR_BASE
+	hex "Hypervisor virtual address"
+	default 0xFF000000
+
+        menu "Domain Partition Map"
+	config MEMMAP_HYPERVISOR_BASE
+		hex "Physical Memory Base for Hypervisor"
+		default 0x0
+
+	config MEMMAP_HYPERVISOR_SIZE
+		hex "Physical Memory Size"
+		default 0x0
+
+	config MEMMAP_GUEST0_BASE
+		hex "domain0 memmory base"
+		default 0x0
+
+        config MEMMAP_GUEST0_SIZE
+                hex "domain0 memory size"
+                default 0x02000000
+
+	config MEMMAP_GUEST1_BASE
+		hex "domain1 memory base"
+		default 0x0
+
+        config MEMMAP_GUEST1_SIZE
+                hex "domain1 memory size"
+                default 0x01000000
+
+	config MEMMAP_GUEST2_BASE
+		hex "domain2 memory base"
+		default 0x0
+
+        config MEMMAP_GUEST2_SIZE
+                hex "domain2 memory size"
+                default 0x01000000
+
+	config MEMMAP_GUEST3_BASE
+		hex "domain3 memory base"
+		default 0x0
+
+        config MEMMAP_GUEST3_SIZE
+                hex "domain3 memory size"
+                default 0x00000000
+        endmenu
+
+        menu "Image Max Size"
+        config MEMMAP_GUEST0_IMAGE_SIZE
+                hex "domain0 image max size"
+                default 0x00400000
+
+        config MEMMAP_GUEST1_IMAGE_SIZE
+                hex "domain1 image max size"
+                default 0x00400000
+
+        config MEMMAP_GUEST2_IMAGE_SIZE
+                hex "domain2 image max size"
+                default 0x00400000
+
+        config MEMMAP_GUEST3_IMAGE_SIZE
+                hex "domain3 image max size"
+                default 0x00400000
+        endmenu
+
+        menu "Ram Disk Size"
+        config MEMMAP_GUEST0_RAMDISK_SIZE
+                hex "domain0 ramdisk size"
+                default 0x00400000
+
+        config MEMMAP_GUEST1_RAMDISK_SIZE
+                hex "domain1 ramdisk size"
+                default 0x00400000
+
+        config MEMMAP_GUEST2_RAMDISK_SIZE
+                hex "domain2 ramdisk size"
+                default 0x00400000
+
+        config MEMMAP_GUEST3_RAMDISK_SIZE
+                hex "domain3 ramdisk size"
+                default 0x00400000
+        endmenu
+endmenu
+
+source "common/Kconfig"
+

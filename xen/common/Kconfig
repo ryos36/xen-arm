@@ -1,0 +1,12 @@
+menu "Debugging and profiling Support"
+config DEBUG
+	bool "Debugging and Profiling Support"
+	default n
+
+config PROFILE
+	bool "Profiling Support"
+	depends on DEBUG
+	help
+		Say Y here if you are profiling Xen.
+endmenu
+

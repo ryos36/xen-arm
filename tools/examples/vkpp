@@ -1,0 +1,7 @@
+#!/bin/sh
+
+XENBUS_PATH="${XENBUS_PATH:?}"
+
+# Tell DevController that backend is "connected"
+xenstore-write "$XENBUS_PATH"/hotplug-status connected
+

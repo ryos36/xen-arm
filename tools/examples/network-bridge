@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "network-bridge is called"
+
+exit 1
+

@@ -1,0 +1,135 @@
+#ifndef __ARM_PGTABLE_H__
+#define __ARM_PGTABLE_H__
+
+#include <asm/cpu-domain.h>
+
+#define PDE_FLAG_MASK		(0x3FF)
+
+#define PDE_TYPE_FAULT          (0x10)
+#define PDE_TYPE_COARSE         (0x11)
+#define PDE_TYPE_SECTION        (0x12)
+#define PDE_TYPE_FINE           (0x13)
+#define PDE_TYPE_MASK		(0x03)
+
+#define PDE_BIT4		(1 << 4)
+
+#define PDE_AP_SRW_UNO          (0x01 << 10)
+#define PDE_AP_SRW_URO          (0x02 << 10)
+#define PDE_AP_SRW_URW          (0x03 << 10)
+
+#define PDE_BUFFERABLE		(0x04)
+#define PDE_CACHEABLE		(0x08)
+
+#define PDE_WRITEBACK		(PDE_CACHEABLE | PDE_BUFFERABLE)
+#define PDE_WRITETHROUGH	(PDE_CACHEABLE)
+#define PDE_SHARED		(0)
+
+#define PDE_DOMAIN_HYPERVISOR   (DOMAIN_HYPERVISOR << 5)
+#define PDE_DOMAIN_SUPERVISOR	(DOMAIN_SUPERVISOR << 5)
+#define PDE_DOMAIN_USER         (DOMAIN_USER << 5)
+#define PDE_DOMAIN_IO           (DOMAIN_IO << 5)
+
+#define PDE_TYPE_HYPERVISOR	(PDE_TYPE_SECTION | PDE_DOMAIN_HYPERVISOR | PDE_AP_SRW_UNO | PDE_WRITEBACK)
+#define PDE_TYPE_IO		(PDE_TYPE_SECTION | PDE_DOMAIN_IO | PDE_AP_SRW_URW)
+
+/*
+ * Definition for Page Table Entries
+ */
+
+#define PTE_FLAG_MASK		(0xFFF)
+
+#define PTE_TYPE_FAULT          (0x00)
+#define PTE_TYPE_LARGE          (0x01)
+#define PTE_TYPE_SMALL          (0x02)
+#define PTE_TYPE_TINY           (0x03)
+#define PTE_TYPE_EXT		(0x03)
+
+#define PTE_TYPE_MASK		(0x03)
+
+#define PTE_BUFFERABLE          (0x04)
+#define PTE_CACHEABLE           (0x08)
+
+#define SECTION_SHIFT		(20)
+#define SECTION_SIZE            (1 << SECTION_SHIFT)
+#define SECTION_MASK		(~(SECTION_SIZE - 1))
+
+#define PGD_SHIFT               (20)
+#define PGT_SHIFT               (12)
+
+#define PGD_SIZE		(PAGE_SIZE * 4)
+
+#define PGD_ALIGN(x)		((x + (0x4000 - 1)) & ~(0x4000 - 1))
+#define PGT_ALIGN(x)		((x + (0x1000 - 1)) & ~(0x1000 - 1))
+
+#define PTE_SMALL_AP_MASK	(0xff << 4)
+#define PTE_SMALL_AP_UNO_SRO	(0x00 << 4)
+#define PTE_SMALL_AP_UNO_SRW	(0x55 << 4)
+#define PTE_SMALL_AP_URO_SRW	(0xaa << 4)
+#define PTE_SMALL_AP_URW_SRW	(0xff << 4)
+
+#define PTE_EXT_XN		(1 << 0)
+#define PTE_EXT_AP_MASK		(3 << 4)
+#define PTE_EXT_AP0		(1 << 4)
+#define PTE_EXT_AP1		(2 << 4)
+#define PTE_EXT_AP_UNO_SRO	(0 << 4)
+#define PTE_EXT_AP_UNO_SRW	(PTE_EXT_AP0)
+#define PTE_EXT_AP_URO_SRW	(PTE_EXT_AP1)
+#define PTE_EXT_AP_URW_SRW	(PTE_EXT_AP1|PTE_EXT_AP0)
+#define PTE_EXT_TEX(x)		((x) << 6)
+#define PTE_EXT_APX		(1 << 9)
+#define PTE_EXT_COHERENT	(1 << 9)
+#define PTE_EXT_SHARED		(1 << 10)
+#define PTE_EXT_NG		(1 << 11)
+
+#define PGD_ORDER		12
+#define PGT_ORDER		8
+
+#define PGD_ENTRIES		(1 << PGD_ORDER)
+#define PGT_ENTRIES		(1 << PGT_ORDER)
+
+#ifdef CONFIG_CPU_XSCALE
+#define PTE_GUEST_AP_MASK	PTE_EXT_AP_MASK
+#define PTE_GUEST_AP_NO		PTE_EXT_AP_UNO_SRW
+#define PTE_GUEST_AP_RO		PTE_EXT_AP_URO_SRW
+#define PTE_GUEST_AP_RW		PTE_EXT_AP_URW_SRW
+#else
+#define PTE_GUEST_AP_MASK	PTE_SMALL_AP_MASK
+#define PTE_GUEST_AP_NO		PTE_SMALL_AP_UNO_SRW
+#define PTE_GUEST_AP_RO		PTE_SMALL_AP_URO_SRW
+#define PTE_GUEST_AP_RW		PTE_SMALL_AP_URW_SRW
+#endif
+
+#define PDE_GUEST_TABLE		(PDE_TYPE_COARSE | PDE_DOMAIN_SUPERVISOR)
+#define PDE_VECTOR_TABLE	(PDE_TYPE_COARSE | PDE_DOMAIN_SUPERVISOR)
+
+#define PTE_GUEST_PAGE		(PTE_TYPE_SMALL | PTE_SMALL_AP_URW_SRW | PTE_BUFFERABLE | PTE_CACHEABLE)
+#define PTE_VECTOR_PAGE		(PTE_TYPE_SMALL | PTE_SMALL_AP_URO_SRW | PTE_BUFFERABLE | PTE_CACHEABLE)
+
+#define GRANT_PTE_FLAGS		(PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_GUEST_AP_RW)
+
+#define PTE_FLAG_SHARED_INFO	(PTE_TYPE_SMALL | PTE_BUFFERABLE | PTE_CACHEABLE | PTE_SMALL_AP_URW_SRW)
+
+#ifndef __ASSEMBLY__
+
+#include <asm/types.h>
+
+#define MK_PTE(x, flags)	((pte_t) { ((x) & (~PTE_FLAG_MASK)) | flags } )
+#define MK_PDE(x, flags)	((pde_t) { ((x) & (~PDE_FLAG_MASK)) | flags } )
+
+#define PGT_IDX(x)			(((x) >> PGT_SHIFT) & (PGT_ENTRIES - 1))
+#define PGD_IDX(x)			(((x) >> PGD_SHIFT) & (PGD_ENTRIES - 1))
+
+#define PTE_NONE(pte)		(!pte_val(pte))
+#define PTE_PRESENT(pte)	(pte_val(pte) & PTE_TYPE_MASK)
+#define PTE_CLEAR(pte)		(pte_val(*(pte)) = 0UL)
+
+#define PDE_NONE(pde)		(!pde_val(pde))
+#define PDE_PRESENT(pde)	(pde_val(pde) & PDE_TYPE_MASK)
+#define PDE_CLEAR(pde)		(pde_val(*(pde)) = 0UL)
+
+typedef struct { unsigned long pte; } pte_t;
+typedef struct { unsigned long pgd; } pde_t;
+
+#endif /* __ASSEMBLY__ */
+
+#endif /* _ASMARM_PGTABLE_H */

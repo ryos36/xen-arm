@@ -1,0 +1,525 @@
+diff -uNr xm/create.py /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/create.py
+--- xm/create.py	2008-07-14 09:12:09.000000000 +0900
++++ /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/create.py	2006-04-14 02:48:39.000000000 +0900
+@@ -17,11 +17,6 @@
+ # Copyright (C) 2005-2006 XenSource Ltd
+ #============================================================================
+ 
+-#============================================================================
+-# Some codes in this file was added and modified
+-# for supporting ARM processor by Samsung Electronics.
+-#============================================================================
+-
+ """Domain creation.
+ """
+ import os
+@@ -40,7 +35,7 @@
+ from xen.xend.XendClient import server
+ from xen.xend.XendBootloader import bootloader
+ from xen.util import blkif
+-from xen.xend import XendDomainInfo
++
+ from xen.xm.opts import *
+ 
+ import console
+@@ -109,10 +104,6 @@
+           fn=set_true, default=0,
+           use="Connect to the console after the domain is created.")
+ 
+-gopts.var('driver_domain', val='no|yes',
+-          fn=set_value, default='no',
+-          use="Enable Driver Domain.")
+-
+ gopts.var('vncviewer', val='no|yes',
+           fn=set_bool, default=None,
+           use="""Spawn a vncviewer listening for a vnc server in the domain.
+@@ -167,7 +158,7 @@
+           use="CPU to run the VCPU0 on.")
+ 
+ gopts.var('cpus', val='CPUS',
+-          fn=set_value, default=None,
++          fn=set_int, default=None,
+           use="CPUS to run the domain on.")
+ 
+ gopts.var('pae', val='PAE',
+@@ -277,10 +268,6 @@
+           use="""Add a physical USB port to a domain, as specified by the path
+           to that port.  This option may be repeated to add more than one port.""")
+ 
+-gopts.var('vmtd', val='phys:DEV,VDEV,MODE[,DOM]',
+-          fn=append_value, default=[],
+-          use="""Add a virtual mtd""")
+-
+ gopts.var('vif', val="type=TYPE,mac=MAC,bridge=BRIDGE,ip=IPADDR,script=SCRIPT,backend=DOM,vifname=NAME",
+           fn=append_value, default=[],
+           use="""Add a network interface with the given MAC address and bridge.
+@@ -484,18 +471,6 @@
+             config_vbd.append(['backend', backend])
+         config_devs.append(['device', config_vbd])
+ 
+-def configure_vmtd(config_devs, vals):
+-    """Create the config for mtd.
+-    """
+-    for (uname, dev, mode, backend) in vals.vmtd:
+-        config_vmtd = ['vmtd',
+-                      ['uname', uname],
+-                      ['dev', dev ],
+-                      ['mode', mode ] ]
+-        if backend:
+-            config_vmtd.append(['backend', backend])
+-        config_devs.append(['device', config_vmtd])
+-
+ def configure_pci(config_devs, vals):
+     """Create the config for pci devices.
+     """
+@@ -527,14 +502,6 @@
+         config_usb = ['usb', ['path', path]]
+         config_devs.append(['device', config_usb])
+ 
+-def configure_vkpp(config_devs, vals):
+-    config_vkpp = ['vkpp']
+-    config_devs.append(['device', config_vkpp])
+-
+-def configure_vfb(config_devs, vals):
+-    config_vfb= ['vfb']
+-    config_devs.append(['device', config_vfb])
+-
+ def configure_vtpm(config_devs, vals):
+     """Create the config for virtual TPM interfaces.
+     """
+@@ -645,18 +612,13 @@
+         config.append(['backend', ['netif']])
+     if vals.tpmif:
+         config.append(['backend', ['tpmif']])
+-    
+-    #if vals.bootloader:
+-    #    config.append(['bootloader', vals.bootloader])
+-    #    config_image = run_bootloader(vals)
+-    #else:
+-    # 	 config_image = configure_image(vals)
+-    #config.append(['image', config_image])
+ 
+-    # add   - by sjy
+-    config_image = configure_image(vals)
++    if vals.bootloader:
++        config.append(['bootloader', vals.bootloader])
++        config_image = run_bootloader(vals)
++    else:
++        config_image = configure_image(vals)
+     config.append(['image', config_image])
+-    # add end
+ 
+     config_devs = []
+     configure_disks(config_devs, vals)
+@@ -666,12 +628,6 @@
+     configure_vifs(config_devs, vals)
+     configure_usb(config_devs, vals)
+     configure_vtpm(config_devs, vals)
+-
+-    if vals.driver_domain == "no":
+-        configure_vkpp(config_devs, vals)
+-        configure_vmtd(config_devs, vals)
+-        configure_vfb(config_devs, vals)
+-            
+     config += config_devs
+ 
+     return config
+@@ -691,21 +647,6 @@
+         disk.append(d)
+     vals.disk = disk
+ 
+-def preprocess_vmtd(vals):
+-    if not vals.vmtd: return
+-    vmtd = []
+-    for v in vals.vmtd:
+-        d = v.split(',')
+-        n = len(d)
+-        if n == 3:
+-            d.append(None)
+-        elif n == 4:
+-            pass
+-        else:
+-            err('Invalid disk specifier: ' + v)
+-        vmtd.append(d)
+-    vals.vmtd= vmtd 
+-
+ def preprocess_pci(vals):
+     if not vals.pci: return
+     pci = []
+@@ -838,7 +779,6 @@
+     if not vals.kernel and not vals.bootloader:
+         err("No kernel specified")
+     preprocess_disk(vals)
+-    preprocess_vmtd(vals)
+     preprocess_pci(vals)
+     preprocess_ioports(vals)
+     preprocess_ip(vals)
+@@ -873,7 +813,7 @@
+     @return: domain id
+     @rtype:  int
+     """
+-    
++
+     try:
+         dominfo = server.xend.domain.create(config)
+     except xmlrpclib.Fault, ex:
+diff -uNr xm/main.py /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/main.py
+--- xm/main.py	2008-07-14 09:12:10.000000000 +0900
++++ /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/main.py	2006-04-14 02:48:39.000000000 +0900
+@@ -19,11 +19,6 @@
+ # License along with this library; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+-#============================================================================
+-# Some codes in this file was added
+-# for supporting ARM processor by Samsung Electronics.
+-#============================================================================
+-
+ """Grand unified management application for Xen.
+ """
+ import os
+@@ -115,18 +110,6 @@
+                                     device, where <DevId> is the device ID."""
+ 
+ network_list_help = "network-list <DomId> [--long]    List virtual network interfaces for a domain"
+-vkpp_list_help = "vkpp-list <DomId> [--long]       list virtual keypad devices"
+-vkpp_attach_help = """vkpp-attach  <DomId> <BackDev> <FrontDev> <Mode> [BackDomId]
+-                        Create a new virtual keypad device"""
+-vfb_attach_help = """vfb-attach  <DomId> [BackDomId]
+-                        Create a new virtual frame buffer device"""
+-vmtd_attach_help = """vmtd-attach <DomId> <BackDev> <FrontDev> <Mode>
+-                [BackDomId]         Create a new virtual vmtd device"""
+-vmtd_detach_help = """vmtd-detach  <DomId> <DevId>    Destroy a domain's virtual vmtd device,
+-                                    where <DevId> may either be the device ID
+-                                    or the device name as mounted in the guest"""
+-vmtd_list_help = "vmtd-list <DomId> [--long]      List virtual vmtd devices for a domain"
+-
+ vnet_list_help = "vnet-list [-l|--long]            list vnets"
+ vnet_create_help = "vnet-create <config>             create a vnet from a config file"
+ vnet_delete_help = "vnet-delete <vnetid>             delete a vnet"
+@@ -193,11 +176,6 @@
+     "network-attach",
+     "network-detach",
+     "network-list",
+-    "vkpp-attach",
+-    "vfb-attach",
+-    "vmtd-attach",
+-    "vmtd-detach",
+-    "vmtd-list",
+     "vtpm-list",
+     ]
+ 
+@@ -865,44 +843,6 @@
+                    "%(be-path)-30s  "
+                    % ni)
+ 
+-
+-
+-def xm_vmtd_list(args):
+-    arg_check(args, "vmtd-list", 1, 2)
+-    
+-    (use_long, params) = has_long_option(args)
+-    
+-    if len(params) == 0:
+-        print 'No domain parameter given'
+-        sys.exit(1)
+-    dom = params[0]
+-    if use_long:
+-        devs = server.xend.domain.getDeviceSxprs(dom, 'vmtd')
+-        map(PrettyPrint.prettyprint, devs)
+-    else:
+-        hdr = 0
+-        for x in server.xend.domain.getDeviceSxprs(dom, 'vmtd'):
+-            if hdr == 0:
+-                print 'Vdev  BE handle state evt-ch ring-ref BE-path'
+-                hdr = 1
+-            ni = parse_dev_info(x[1])
+-            ni['idx'] = int(x[0])
+-            print ("%(idx)-3d    "
+-                   "%(backend-id)-3d  "
+-                   "%(handle)-3d   "
+-                   "%(state)-3d    "
+-                   "%(event-ch)-3d    "
+-                   "%(ring-ref)-5d "
+-                   "%(be-path)-30s  "
+-                   % ni)
+-
+-
+-
+-
+-
+-
+-
+-
+ def xm_vtpm_list(args):
+     arg_check(args, "vtpm-list", 1, 2)
+ 
+@@ -957,39 +897,6 @@
+ 
+     server.xend.domain.device_create(dom, vif)
+ 
+-def xm_vkpp_attach(args):
+-
+-    arg_check(args, 'vkpp-attach', 1, 2)
+-
+-    dom = args[0]
+-    vkpp = ['vkpp']
+-
+-    if len(args) == 5:
+-           vkpp.append(['backend', args[1]])
+-    server.xend.domain.device_create(dom, vkpp)
+-
+-def xm_vfb_attach(args):
+-    arg_check(args, 'vfb-attach', 1, 2)
+-
+-    dom = args[0]
+-    vfb= ['vfb']
+-
+-    if len(args) == 2:
+-           vfb.append(['backend', args[1]])
+-    server.xend.domain.device_create(dom, vfb)
+-
+-def xm_vmtd_attach(args):
+-    arg_check(args, 'vmtd-attach', 4, 5)
+-
+-    dom = args[0]
+-    vmtd = ['vmtd',
+-           ['uname', args[1]],
+-           ['dev',   args[2]],
+-           ['mode',  args[3]]]
+-    if len(args) == 5:
+-        vmtd.append(['backend', args[4]])
+-
+-    server.xend.domain.device_create(dom, vmtd)
+ 
+ def detach(args, command, deviceClass):
+     arg_check(args, command, 2)
+@@ -1007,8 +914,6 @@
+ def xm_network_detach(args):
+     detach(args, 'network-detach', 'vif')
+ 
+-def xm_vmtd_detach(args):
+-    detach(args, 'vmtd-detach', 'vmtd')
+ 
+ def xm_vnet_list(args):
+     try:
+@@ -1092,14 +997,6 @@
+     "network-attach": xm_network_attach,
+     "network-detach": xm_network_detach,
+     "network-list": xm_network_list,
+-    # vkpp
+-    "vkpp-attach": xm_vkpp_attach,
+-    # vfb
+-    "vfb-attach": xm_vfb_attach,
+-    # vmtd
+-    "vmtd-attach": xm_vmtd_attach,
+-    "vmtd-detach": xm_vmtd_detach,
+-    "vmtd-list": xm_vmtd_list,
+     # vnet
+     "vnet-list": xm_vnet_list,
+     "vnet-create": xm_vnet_create,
+diff -uNr xm/tests/__init__.py /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/tests/__init__.py
+--- xm/tests/__init__.py	1970-01-01 09:00:00.000000000 +0900
++++ /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/tests/__init__.py	2006-04-14 02:48:39.000000000 +0900
+@@ -0,0 +1,2 @@
++
++
+diff -uNr xm/tests/test_create.py /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/tests/test_create.py
+--- xm/tests/test_create.py	1970-01-01 09:00:00.000000000 +0900
++++ /home/nirvana/workspace/xen-3.0.2-2/tools/python/xen/xm/tests/test_create.py	2006-04-14 02:48:39.000000000 +0900
+@@ -0,0 +1,195 @@
++import os
++import os.path
++import tempfile
++import unittest
++
++import xen.xend.XendRoot
++
++xen.xend.XendRoot.XendRoot.config_default = '/dev/null'
++
++import xen.xm.create
++
++
++class test_create(unittest.TestCase):
++
++    def assertEqualModuloNulls_(self, a, b):
++        for k, v in a.iteritems():
++            if v:
++                self.failUnless(k in b, '%s not in b' % k)
++                self.assertEqual(v, b[k])
++            else:
++                self.assert_(k not in b or not b[k], '%s in b' % k)
++
++
++    def assertEqualModuloNulls(self, a, b):
++        self.assertEqualModuloNulls_(a, b)
++        self.assertEqualModuloNulls_(b, a)
++
++
++    def t(self, args, expected):
++        self.assertEqualModuloNulls(
++            xen.xm.create.parseCommandLine(args.split(' '))[0].vals.__dict__,
++            expected)
++
++
++    def testCommandLine(self):
++        (fd, fname) = tempfile.mkstemp()
++        os.close(fd)
++        self.t('-f %s kernel=/mykernel display=fakedisplay '
++               'macaddr=ab:cd:ef:ed' % fname,
++               { 'name'      : os.path.basename(fname),
++                 'xm_file'   : fname,
++                 'defconfig' : fname,
++                 'kernel'    : '/mykernel',
++                 'display'   : 'fakedisplay',
++                 'macaddr'   : 'ab:cd:ef:ed',
++                 'memory'    : 128,
++                 'vcpus'     : 1,
++                 'boot'      : 'c',
++                 'dhcp'      : 'off',
++                 'interface' : 'eth0',
++                 'path'      : '.:/etc/xen',
++                 'builder'   : 'linux',
++                 'nics'      : -1,
++                 })
++
++
++    def testConfigFile(self):
++        (fd, fname) = tempfile.mkstemp()
++        try:
++            os.write(fd,
++                     '''
++kernel = "/boot/vmlinuz-xenU-smp"
++memory = 768
++name = "dom1"
++vcpus = 4
++disk = ['phy:/dev/virt-blkdev-backend/dom1,sda1,w',
++'phy:/dev/virt-blkdev-backend/usr,sda2,r']
++root = "/dev/sda1 ro"
++extra = " profile=1 GATEWAY=10.0.1.254 NETMASK=255.255.0.0 IPADDR=10.0.134.1 HOSTNAME=dom1"
++on_poweroff = 'destroy'
++on_reboot   = 'destroy'
++on_crash    = 'destroy'
++                     ''')
++        finally:
++            os.close(fd)
++
++        self.t('-f %s display=fakedisplay' % fname,
++               { 'kernel'      : '/boot/vmlinuz-xenU-smp',
++                 'memory'      : 768,
++                 'name'        : 'dom1',
++                 'vcpus'       : 4,
++                 'nics'        : -1,
++                 'root'        : '/dev/sda1 ro',
++                 'extra'       : ' profile=1 GATEWAY=10.0.1.254 NETMASK=255.255.0.0 IPADDR=10.0.134.1 HOSTNAME=dom1',
++                 'on_poweroff' : 'destroy',
++                 'on_reboot'   : 'destroy',
++                 'on_crash'    : 'destroy',
++                 'disk'        : [['phy:/dev/virt-blkdev-backend/dom1',
++                                   'sda1', 'w', None],
++                                  ['phy:/dev/virt-blkdev-backend/usr',
++                                   'sda2', 'r', None]],
++
++                 'xm_file'     : fname,
++                 'defconfig'   : fname,
++                 'display'     : 'fakedisplay',
++
++                 'boot'        : 'c',
++                 'dhcp'        : 'off',
++                 'interface'   : 'eth0',
++                 'path'        : '.:/etc/xen',
++                 'builder'     : 'linux',
++               })
++
++
++    def testConfigFileAndCommandLine(self):
++        (fd, fname) = tempfile.mkstemp()
++        try:
++            os.write(fd,
++                     '''
++name       = "testname"
++memory     = 256
++ssidref    = 1
++kernel     = "/mykernel"
++maxmem     = 1024
++cpu        = 2
++cpu_weight = 0.75
++                     ''')
++        finally:
++            os.close(fd)
++
++        self.t('-f %s display=fakedisplay macaddr=ab:cd:ef:ed' %
++          fname,
++               { 'name'       : 'testname',
++                 'xm_file'    : fname,
++                 'defconfig'  : fname,
++                 'kernel'     : '/mykernel',
++                 'display'    : 'fakedisplay',
++                 'macaddr'    : 'ab:cd:ef:ed',
++                 'memory'     : 256,
++                 'maxmem'     : 1024,
++                 'cpu'        : 2,
++                 'ssidref'    : 1,
++                 'cpu_weight' : 0.75,
++                 'vcpus'      : 1,
++                 'boot'       : 'c',
++                 'dhcp'       : 'off',
++                 'interface'  : 'eth0',
++                 'path'       : '.:/etc/xen',
++                 'builder'    : 'linux',
++                 'nics'       : -1,
++                 })
++            
++
++    def testHVMConfigFile(self):
++        (fd, fname) = tempfile.mkstemp()
++        try:
++            os.write(fd,
++                     '''
++kernel = "/usr/lib/xen/boot/hvmloader"
++builder='hvm'
++memory = 128
++name = "ExampleHVMDomain"
++vcpus=1
++vif = [ 'type=ioemu, bridge=xenbr0' ]
++disk = [ 'file:/var/images/min-el3-i386.img,ioemu:hda,w' ]
++device_model = '/usr/lib/xen/bin/qemu-dm'
++sdl=0
++vnc=1
++vncviewer=1
++ne2000=0
++                     ''')
++        finally:
++            os.close(fd)
++
++        self.t('-f %s display=fakedisplay' % fname,
++               { 'kernel'      : '/usr/lib/xen/boot/hvmloader',
++                 'builder'     : 'hvm',
++                 'memory'      : 128,
++                 'name'        : 'ExampleHVMDomain',
++                 'vcpus'       : 1,
++                 'nics'        : -1,
++                 'vif'         : ['type=ioemu, bridge=xenbr0'],
++                 'disk'        : [['file:/var/images/min-el3-i386.img',
++                                   'ioemu:hda', 'w', None]],
++                 'device_model': '/usr/lib/xen/bin/qemu-dm',
++
++                 'extra'       : ('VNC_VIEWER=%s:%d ' %
++                                  (xen.xm.create.get_host_addr(),
++                                   xen.xm.create.VNC_BASE_PORT + 1)),
++                 'vnc'         : 1,
++                 'vncviewer'   : 1,
++
++                 'xm_file'     : fname,
++                 'defconfig'   : fname,
++                 'display'     : 'fakedisplay',
++
++                 'boot'        : 'c',
++                 'dhcp'        : 'off',
++                 'interface'   : 'eth0',
++                 'path'        : '.:/etc/xen',
++               })
++
++
++def test_suite():
++    return unittest.makeSuite(test_create)

@@ -1,0 +1,3 @@
+void machine_init()
+{
+}

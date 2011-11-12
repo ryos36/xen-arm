@@ -1,0 +1,64 @@
+Memory Management
+
+
+On original Xen, physical memory is managed on page-by-page trhough the page
+structure. 
+A page can be in l1_page table, l2_page_table, writable, of readonly state.
+Additionally, a page may have be held with a reference counter or locked with
+a busy count.
+
+
+#define MAP_PRIVATE	for hypervisor
+#define MAP_SHARED	for shared region like shared_info.
+#define MAP_GUEST	for guest pages.
+
+#define PGS_VALIDATED			
+#define PGS_WRITABLE			
+
+#define PGT_TRANSLATION_TABLE		
+#define PGT_CONVENTIONAL_PAGE		
+
+#define TRAP_DATA_ABORT			
+#define TRAP_PREFETCH_ABORT		
+#define TRAP_UNDEFINED_INSTRUCTION	
+
+
+void update_translation_table(void *entry, unsigned long value)
+{
+	
+}
+
+void propagate_trap(struct vcpu *v, unsigned int exception)
+{
+
+	if(!(vcpsr(v) & (PSR_INT_MASK))) {
+		
+	}
+
+}
+
+int validate_translation_table(struct page *page)
+{
+	unsigned int count;
+
+	if(entry & TTE_TYPE_MASK) != TTE_TYPE_SECTION) {
+
+	}
+		
+}
+
+inline void change_page_state(struct page *page, unsigned int state)
+{
+	switch (page->state & PGT_MASK) {
+	case PGT_TRANSLATION_TABLE : 
+		if ((page->state & PGS_MASK ) != PGS_VALIDATED) {
+			validate_translation_table(page);
+		}
+
+		page->state |= PGS_VALIDATED;
+		break;
+
+	case PGT_CONVENTIONAL_PAGE :
+	}
+}
+

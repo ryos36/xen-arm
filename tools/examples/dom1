@@ -1,0 +1,10 @@
+# Automatically generated xen config file
+name = "dom1"
+memory = "24"
+kernel = "/opt/xocean/images/vmlinux.out1"
+on_reboot   = 'restart'
+on_crash    = 'restart'
+vif = ['mac=aa:cc:00:00:00:02, backend=0']
+vkpp = ['']
+vfb = ['']
+vmtd = ['phys:mtd10,vmtda1,w,0']

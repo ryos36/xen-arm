@@ -1,0 +1,39 @@
+XEN_ROOT = ../..
+include ../Rules.mk
+
+SRCS       :=
+SRCS       += xc_bvtsched.c
+SRCS       += xc_core.c
+SRCS       += xc_domain.c
+SRCS       += xc_evtchn.c
+SRCS       += xc_misc.c
+SRCS       += xc_physdev.c
+SRCS       += xc_private.c
+SRCS       += xc_sedf.c
+SRCS       += xc_tbuf.c
+DEPS     = .*.d
+LIB := libxenctrl.a
+
+#CFLAGS   += -I$(XEN_ROOT)$(INCLUDES) -I.
+CFLAGS   += -I.
+CFLAGS   += -Wp,-MD,.$(@F).d
+
+LIB_OBJS := $(patsubst %.c,%.o,$(SRCS))
+
+
+all: build
+default: all
+
+build : mk-symlinks libxenctrl_arm.a
+
+mk-symlinks:
+	mkdir -p xen
+	( cd xen && ln -sf ../$(XEN_ROOT)/xen/include/public/*.h . )
+
+
+libxenctrl_arm.a: $(LIB_OBJS) 
+	$(AR) rc $@ $^
+
+
+clean:
+	rm -rf *.a *.so* *.o *.opic *.rpm $(LIB) *~ $(DEPS) xen

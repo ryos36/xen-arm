@@ -1,0 +1,29 @@
+arm_v4t_le-gcc  -DPIC -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xs.opic.d  -I../../tools/libxc -I. -fPIC -c -o xs.opic xs.c
+arm_v4t_le-gcc  -DPIC -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xs_lib.opic.d  -I../../tools/libxc -I. -fPIC -c -o xs_lib.opic xs_lib.c
+arm_v4t_le-gcc -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.libxenstore.so.d  -I../../tools/libxc -I.    -L../../tools/libxc -Wl,-soname -Wl,libxenstore.so -shared -o libxenstore.so xs.opic xs_lib.opic -lpthread
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstored_core.o.d  -I../../tools/libxc -I. -c -o xenstored_core.o xenstored_core.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstored_watch.o.d  -I../../tools/libxc -I. -c -o xenstored_watch.o xenstored_watch.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstored_domain.o.d  -I../../tools/libxc -I. -c -o xenstored_domain.o xenstored_domain.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstored_transaction.o.d  -I../../tools/libxc -I. -c -o xenstored_transaction.o xenstored_transaction.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xs_lib.o.d  -I../../tools/libxc -I. -c -o xs_lib.o xs_lib.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.talloc.o.d  -I../../tools/libxc -I. -c -o talloc.o talloc.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.utils.o.d  -I../../tools/libxc -I. -c -o utils.o utils.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.tdb.o.d  -I../../tools/libxc -I. -c -o tdb.o tdb.c
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.hashtable.o.d  -I../../tools/libxc -I. -c -o hashtable.o hashtable.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstored_core.o xenstored_watch.o xenstored_domain.o xenstored_transaction.o xs_lib.o talloc.o utils.o tdb.o hashtable.o   -lxenctrl -o xenstored
+arm_v4t_le-gcc -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstore_exists.o.d  -I../../tools/libxc -I.   -c -DCLIENT_exists -o xenstore_exists.o xenstore_client.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstore_exists.o   -L. -lxenstore -o xenstore-exists
+arm_v4t_le-gcc -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstore_list.o.d  -I../../tools/libxc -I.   -c -DCLIENT_list -o xenstore_list.o xenstore_client.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstore_list.o   -L. -lxenstore -o xenstore-list
+arm_v4t_le-gcc -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstore_read.o.d  -I../../tools/libxc -I.   -c -DCLIENT_read -o xenstore_read.o xenstore_client.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstore_read.o   -L. -lxenstore -o xenstore-read
+arm_v4t_le-gcc -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstore_rm.o.d  -I../../tools/libxc -I.   -c -DCLIENT_rm -o xenstore_rm.o xenstore_client.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstore_rm.o   -L. -lxenstore -o xenstore-rm
+arm_v4t_le-gcc -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstore_write.o.d  -I../../tools/libxc -I.   -c -DCLIENT_write -o xenstore_write.o xenstore_client.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstore_write.o   -L. -lxenstore -o xenstore-write
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xs_tdb_dump.o.d  -I../../tools/libxc -I. -c -o xs_tdb_dump.o xs_tdb_dump.c
+arm_v4t_le-gcc    -L../../tools/libxc  xs_tdb_dump.o utils.o tdb.o talloc.o   -o xs_tdb_dump
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xenstore_control.o.d  -I../../tools/libxc -I. -c -o xenstore_control.o xenstore_control.c
+arm_v4t_le-gcc    -L../../tools/libxc  xenstore_control.o   -L. -lxenstore -o xenstore-control
+arm_v4t_le-gcc  -DCONFIG_ARCH_IMX21 -DNDEBUG -marm -Wall -Wstrict-prototypes   -D__XEN_INTERFACE_VERSION__=0x00030101 -Wall -g -Werror -Wp,-MD,.xsls.o.d  -I../../tools/libxc -I. -c -o xsls.o xsls.c
+arm_v4t_le-gcc    -L../../tools/libxc  xsls.o   -L. -lxenstore -o xenstore-ls

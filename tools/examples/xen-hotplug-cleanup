@@ -1,0 +1,13 @@
+#! /bin/sh
+
+export PATH=$PATH:/opt/xocean/usr/local/xen-tools/bin:/opt/xocean/usr/local/xen-tools/sbin:/opt/xocean/usr/local/arm-python/bin
+export LD_LIBRARY_PATH=/opt/xocean/usr/local/arm-python/lib:/opt/xocean/usr/local/xen-tools/lib:/opt/xocean/lib
+
+# remove device frontend store entries
+xenstore-rm -t \
+  $(xenstore-read "$XENBUS_PATH/frontend" 2>/dev/null) 2>/dev/null || true
+
+# remove device backend store entries
+xenstore-rm -t "$XENBUS_PATH"        2>/dev/null || true
+xenstore-rm -t "error/$XENBUS_PATH"  2>/dev/null || true
+

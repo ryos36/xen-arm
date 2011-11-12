@@ -1,0 +1,9 @@
+# Automatically generated xen config file
+name = "dom2"
+memory = "16"
+kernel = "/images/vmlinux.out2"
+#mtd = ['phy:mtdc4, vmtda1, w']
+#bootloader="/usr/bin/pygrub"
+on_reboot   = 'restart'
+on_crash    = 'restart'
+#vkpp = ['']

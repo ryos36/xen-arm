@@ -1,0 +1,25 @@
+obj-y += xensetup.o
+obj-y += mm.o
+obj-y += cp15.o
+obj-y += irq.o
+obj-y += arch_domain.o
+obj-y += domain_page.o
+obj-y += time.o
+obj-y += domain_build.o
+obj-y += traps.o
+obj-y += dom0_ops.o
+obj-y += physdev.o
+obj-y += entry.o
+obj-y += hypercalls.o
+obj-y += fault.o
+obj-y += fcse.o
+obj-y += exception.o
+obj-y += shutdown.o
+obj-y += vfp.o
+obj-y += core.o
+obj-y += bug.o
+obj-y += backtrace.o
+obj-y += smp.o
+obj-y += armv7.o
+obj-y += copypage-v7.o
+

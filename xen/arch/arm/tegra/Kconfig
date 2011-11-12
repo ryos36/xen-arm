@@ -1,0 +1,5 @@
+config PLATFORM_TEGRA250
+	bool "Tegra250 board"
+	select SMP
+	help
+		Say Y here if you are using the Tegra250 board.

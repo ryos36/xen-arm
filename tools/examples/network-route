@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "network-route is called"
+
+exit 1
+

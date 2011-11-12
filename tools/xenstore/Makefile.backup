@@ -1,0 +1,35 @@
+#XEN_ROOT=../..
+XEN_ROOT=../
+
+include $(XEN_ROOT)/tools/Rules.mk
+
+AR	:= arm_v4t_le-ar
+CC	:= arm_v4t_le-gcc
+LD	:= arm_v4t_le-ld
+CFLAGS  += -g
+CFLAGS  += -Wall 
+CFLAGS += -D__XEN_INTERFACE_VERSION__=0x00030101
+PROFILE=#-pg
+BASECFLAGS=-Wall -g -Werror
+# Make gcc generate dependencies.
+BASECFLAGS += -Wp,-MD,.$(@F).d
+BASECFLAGS+= $(PROFILE)
+ASECFLAGS+= -I.
+
+XEN_LIBXC          = $(XEN_ROOT)/libxc
+
+CFLAGS  += $(BASECFLAGS)
+LDFLAGS += $(PROFILE) -L$(XEN_LIBXC)
+
+
+
+
+all:  xenstored
+
+#using xenctrl_arm instead of xenctrl 
+
+xenstored: libxenctl.a xenstored_core.o xenstored_watch.o xenstored_domain.o xenstored_transaction.o xs_lib.o talloc.o utils.o tdb.o hashtable.o
+	$(LD) $^ $(LOADLIBES) $(LDLIBS) -lxenctrl_arm -o $@
+
+
+

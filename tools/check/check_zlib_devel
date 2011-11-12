@@ -1,0 +1,11 @@
+#!/bin/bash
+# CHECK-BUILD
+
+function error {
+    echo
+    echo "  *** Check for zlib headers FAILED"
+    exit 1
+}
+
+set -e
+[ -e /usr/include/zlib.h ] || error
