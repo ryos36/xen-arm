@@ -21,11 +21,6 @@ volatile irq_cpustat_t irq_stat[NR_CPUS];
 
 static softirq_handler softirq_handlers[NR_SOFTIRQS];
 
-asmlinkage irq_cpustat_t *get_irq_stat(void)
-{
-	return &irq_stat[smp_processor_id()];
-}
-
 asmlinkage void do_softirq(void)
 {
 	unsigned int i, cpu;

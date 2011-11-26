@@ -27,9 +27,8 @@ VTPM_TOOLS ?= n
 XEN_COMPILE_ARCH	?= $(shell uname -m | sed -e s/i.86/x86_32/)
 XEN_TARGET_ARCH		?= arm
 XEN_TARGET_SUBARCH	?= tegra
-XEN_GUEST_KERNEL	?= linux-xen
 
-LINUX_ROOT		?=$(XEN_ROOT)/../guest-kernels/$(XEN_GUEST_KERNEL)
+XEN_GUEST_KERNEL	?= linux-xen
 
 # Tools to run on system hosting the build
 HOSTCC     = gcc

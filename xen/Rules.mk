@@ -31,9 +31,9 @@ quiet-cmd = $(if $(V),$1,$(if $(2), @echo -e $2 && $(1), @$1))
 symlink	= $(call quiet-cmd,[ -e $2 ] || ln -sf $1 $2," LN\t$1 -> $2")
 
 # Set ARCH/SUBARCH appropriately.
-override TARGET_ARCH     := $(shell echo $(XEN_TARGET_ARCH) | \
+override TARGET_ARCH	:= $(shell echo $(XEN_TARGET_ARCH) | \
                               sed -e 's/x86.*/x86/')
-override TARGET_SUBARCH     := $(XEN_TARGET_SUBARCH)
+override TARGET_SUBARCH	:= $(XEN_TARGET_SUBARCH)
 
 TARGET := $(BASEDIR)/xen
 

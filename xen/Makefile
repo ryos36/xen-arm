@@ -59,7 +59,9 @@ $(TARGET).gz: $(TARGET)
 $(TARGET): delete-unfresh-files
 	$(MAKE) -C tools
 	$(MAKE) -f $(BASEDIR)/Rules.mk include/xen/compile.h
-	$(call symlink,asm-$(TARGET_ARCH),include/asm)
+	[ -e include/asm ] || ln -sf asm-$(TARGET_ARCH) include/asm
+	$(MAKE) -f $(BASEDIR)/Rules.mk -C arch/$(TARGET_ARCH) asm-offsets.s
+	$(MAKE) -f $(BASEDIR)/Rules.mk include/asm-$(TARGET_ARCH)/asm-offsets.h
 	$(MAKE) -f $(BASEDIR)/Rules.mk -C arch/$(TARGET_ARCH) $(TARGET)
 
 # drivers/char/console.o contains static banner/compile info. Blow it away.
@@ -92,6 +94,23 @@ include/xen/compile.h: include/xen/compile.h.in .banner
 	@grep \" .banner >> $@.new
 	@grep -v \" .banner
 	@mv -f $@.new $@
+
+include/asm-$(TARGET_ARCH)/asm-offsets.h: arch/$(TARGET_ARCH)/asm-offsets.s
+	@(set -e; \
+        echo "/*"; \
+        echo " * DO NOT MODIFY."; \
+        echo " *"; \
+        echo " * This file was auto-generated from $<"; \
+        echo " *"; \
+        echo " */"; \
+        echo ""; \
+        echo "#ifndef __ASM_OFFSETS_H__"; \
+        echo "#define __ASM_OFFSETS_H__"; \
+        echo ""; \
+        sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
+        echo ""; \
+        echo "#endif") <$< >$@
+
 
 include/xen/autoconf.h: $(XEN_ROOT)/.config
 	$(Q)(set -e; \
