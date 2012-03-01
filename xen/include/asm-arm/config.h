@@ -3,6 +3,10 @@
 
 #include <asm/arch/config.h>
 
+#ifndef XEN_START_ADDR
+#define XEN_START_ADDR 0xFF008000
+#endif 
+
 #define supervisor_mode_kernel	(0)
 
 #ifdef CONFIG_USE_HIGH_VECTORS

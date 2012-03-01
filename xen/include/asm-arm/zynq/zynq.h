@@ -1,0 +1,31 @@
+#ifndef __XEN_ZYNQ_H__
+#define __XEN_ZYNQ_H__
+
+#define ZYNQ_PERIPH_PHY_BASE		0xF8000000
+
+#define ZYNQ_PERIPH_TTC0_BASE		(ZYNQ_PERIPH_PHY_BASE + 0x1000)
+
+// Coretex-A9 can set private memory area by PERIPHBASE[31:13] pin
+// please refer Coretex-A9 MPcore Technical Reference Manual
+#define ZYNQ_PRI_PERIPH_PHYS_BASE	0xF8F00000
+#define ZYNQ_PERIPH_SIZE		0x2000
+
+#define ZYNQ_SCU_PHYS_BASE		(ZYNQ_PRI_PERIPH_PHYS_BASE + 0)
+#define ZYNQ_SCU_SIZE			0x0100
+
+#define ZYNQ_GIC_CPU_PHYS_BASE		(ZYNQ_PRI_PERIPH_PHYS_BASE + 0x100)
+#define ZYNQ_GIC_CPU_SIZE		0x0100
+
+#define ZYNQ_GTIMER_PHYS_BASE		(ZYNQ_PRI_PERIPH_PHYS_BASE + 0x200)
+#define ZYNQ_GTIMER_SIZE		0x0100
+
+#define ZYNQ_PTIMER_WDT_PHYS_BASE	(ZYNQ_PRI_PERIPH_PHYS_BASE + 0x600)
+#define ZYNQ_PTIMER_WDT_SIZE		0x0100
+
+#define ZYNQ_GIC_DIST_PHYS_BASE		(ZYNQ_PRI_PERIPH_PHYS_BASE + 0x1000)
+#define ZYNQ_GIC_DIST_SIZE		0x1000
+
+#define IO_ADDRESS(x)   (x)
+#define PHYS_TO_VIRT(x) (x)
+
+#endif /* __XEN_ZYNQ_H__ */

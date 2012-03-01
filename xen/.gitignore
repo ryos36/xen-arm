@@ -1,0 +1,14 @@
+.banner
+System.map
+xen
+xen-syms
+xen-syms.map
+xen.gz
+arch/arm/xen.map
+include/asm
+include/asm-arm/asm-offsets.h
+include/asm-arm/arch
+tools/figlet/figlet
+tools/symbols
+arch/arm/asm-offsets.s
+arch/arm/xen.lds

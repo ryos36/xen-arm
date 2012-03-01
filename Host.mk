@@ -1,7 +1,7 @@
 # -*- mode: Makefile; -*-
 
 # A debug build of Xen and tools?
-DEBUG	?= y
+DEBUG	?= n
 
 # Target architecture
 # Supported architectures are:
@@ -47,7 +47,7 @@ HOSTCFLAGS = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 #
 # Cross Tool chain configuration
 #
-TOOLCHAIN_PREFIX = /opt/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
+TOOLCHAIN_PREFIX = arm-none-linux-gnueabi-
 
 #
 # Toolchain configuration
@@ -71,12 +71,13 @@ INSTALL_DIR	= $(INSTALL) -d -m0755
 INSTALL_DATA	= $(INSTALL) -m0644
 INSTALL_PROG	= $(INSTALL) -m0755
 
-ifneq ($(debug),y)
+ifneq ($(DEBUG),y)
 # Optimisation flags are overridable
 CFLAGS		?= -O2 -fomit-frame-pointer
 CFLAGS		+= -DNDEBUG
 else
-CFLAGS		?= -g -O2 -fomit-frame-pointer
+CFLAGS		?= -O0 -ggdb
+CFLAGS		+= -DDEBUG
 endif
 
 ifneq ($(EXTRA_PREFIX),)

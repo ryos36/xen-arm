@@ -17,8 +17,8 @@ include $(XEN_ROOT)/Config.mk
 
 # Hardcoded configuration implications and dependencies.
 # Do this is a neater way if it becomes unwieldy.
-ifeq ($(debug),y)
-verbose       := y
+ifeq ($(DEBUG),y)
+#verbose       := y
 frame_pointer := y
 else
 CFLAGS += -DNDEBUG
@@ -27,7 +27,7 @@ ifeq ($(perfc_arrays),y)
 perfc := y
 endif
 
-quiet-cmd = $(if $(V),$1,$(if $(2), @echo -e $2 && $(1), @$1))
+quiet-cmd = $(if $(V),@echo -e $1 && $(1),$(if $(2), @echo -e $2 && $(1), @$1))
 symlink	= $(call quiet-cmd,[ -e $2 ] || ln -sf $1 $2," LN\t$1 -> $2")
 
 # Set ARCH/SUBARCH appropriately.

@@ -1,0 +1,50 @@
+
+    /* Memory map for Pele Emulation Baseboard:
+     * -------------------------------------------------
+     * FPGA_AXI_S0          0x80000000 - 0x8FFFFFFF
+     * FPGA_AXI_S1          0x90000000 - 0x9FFFFFFF
+     * IOU_S_Switch         0xE0000000 - 0xEFFFFFFF
+     *     UART0                 0xE0000000 - 0xE0000FFF
+     *     UART1                 0xE0001000 - 0xE0001FFF
+     *     USB0                  0xE0002000 - 0xE0002FFF
+     *     USB1                  0xE0003000 - 0xE0003FFF
+     *     I2C0                  0xE0004000 - 0xE0004FFF
+     *     I2C1                  0xE0005000 - 0xE0005FFF
+     *     SPI0                  0xE0006000 - 0xE0006FFF
+     *     SPI1                  0xE0007000 - 0xE0007FFF
+     *     CAN0                  0xE0008000 - 0xE0008FFF
+     *     CAN1                  0xE0009000 - 0xE0009FFF
+     *     GPIO                  0xE000A000 - 0xE000AFFF
+     *     GigabitEthernet0      0xE000B000 - 0xE000BFFF
+     *     GigabitEthernet1      0xE000C000 - 0xE000CFFF
+     *     Quad_SP1              0xE000D000 - 0xE000DFFF
+     *     ParallelPort_Ctrl     0xE000E000 - 0xE000EFFF
+     *     SDIO0                 0xE0100000 - 0xE0100FFF
+     *     SDIO1                 0xE0101000 - 0xE0101FFF
+     *     IOU_Bus_Cfg           0xE0200000 - 0xE02FFFFF
+     *     NAND                  0xE1000000 - 0xE1FFFFFF
+     *     ParallelPort0         0xE2000000 - 0xE3FFFFFF
+     *     ParallelPort1         0xE4000000 - 0xE5FFFFFF
+     * Peripheral_APB        0xF8000000 - 0xF8EFFFFF
+     *     SLCR                  0xF8000000 - 0xF8000FFF
+     *     TTC0                  0xF8001000 - 0xF8001FFF
+     *     TTC1                  0xF8002000 - 0xF8002FFF
+     *     DMAC0_Sec             0xF8003000 - 0xF8003FFF
+     *     DMAC0_NonSec          0xF8004000 - 0xF8004FFF
+     *     WDT                   0xF8005000 - 0xF8005FFF
+     *     DDR_Ctrl              0xF8006000 - 0xF8006FFF
+     *     DevCfg_APB            0xF8007000 - 0xF8007FFF
+     *     AFI0                  0xF8008000 - 0xF8008FFF
+     *     AFI1                  0xF8009000 - 0xF8009FFF
+     *     AFI2                  0xF800A000 - 0xF800AFFF
+     *     AFI3                  0xF800B000 - 0xF800BFFF
+     *     OCM                   0xF800C000 - 0xF800CFFF
+     *     eFUSE                 0xF800D000 - 0xF800DFFF
+     *     CoreSight             0xF8800000 - 0xF88FFFFF
+     *     Top_Bus_Cfg           0xF8900000 - 0xF89FFFFF
+     * SCU_Peripheral        0xF8F00000 - 0xF8F01FFF
+     * L-2 Cache PL310       0xF8F02000 - 0xF8F02FFF
+     * IOU_S_Switch          0xFC000000 - 0xFFFBFFFF
+     *     QSPI Linear           0xFC000000 - 0xFFFBFFFF
+     * SAM_RAM               0xFFFC0000 - 0xFFFFFFFF
+     */

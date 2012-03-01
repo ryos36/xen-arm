@@ -34,7 +34,8 @@ PHDRS
 
 SECTIONS
 {
-	. = 0xFF008000;
+	/* . = 0xFF008000; */
+	. = XEN_START_ADDR; 
 
 	_start = .;
 	_stext = .;			/* Text and read-only data */

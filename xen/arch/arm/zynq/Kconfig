@@ -1,0 +1,5 @@
+config PLATFORM_ZYNQ
+	bool "zynq board"
+	select SMP
+	help
+		Say Y here if you are using the ZYNQ board.

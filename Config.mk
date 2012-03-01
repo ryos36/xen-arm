@@ -1,7 +1,7 @@
 # -*- mode: Makefile; -*-
 
 # A debug build of Xen and tools?
-DEBUG	?= y
+DEBUG	?= n
 
 # If ACM_SECURITY = y, then the access control module is compiled
 # into Xen and the policy type can be set by the boot policy file
@@ -26,7 +26,7 @@ VTPM_TOOLS ?= n
 
 XEN_COMPILE_ARCH	?= $(shell uname -m | sed -e s/i.86/x86_32/)
 XEN_TARGET_ARCH		?= arm
-XEN_TARGET_SUBARCH	?= tegra
+XEN_TARGET_SUBARCH	?= zynq
 
 XEN_GUEST_KERNEL	?= linux-xen
 
@@ -37,7 +37,7 @@ HOSTCFLAGS = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 #
 # Cross Tool chain configuration
 #
-TOOLCHAIN_PREFIX = /opt/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
+TOOLCHAIN_PREFIX = arm-none-linux-gnueabi-
 
 #
 # Toolchain configuration
@@ -61,12 +61,13 @@ INSTALL_DIR	= $(INSTALL) -d -m0755
 INSTALL_DATA	= $(INSTALL) -m0644
 INSTALL_PROG	= $(INSTALL) -m0755
 
-ifneq ($(debug),y)
+ifneq ($(DEBUG),y)
 # Optimisation flags are overridable
 CFLAGS		?= -O2 -fomit-frame-pointer
 CFLAGS		+= -DNDEBUG
 else
-CFLAGS		?= -g -O2 -fomit-frame-pointer
+CFLAGS		?= -O0 -ggdb
+CFLAGS		+= -DDEBUG
 endif
 
 ifneq ($(EXTRA_PREFIX),)
